@@ -1,0 +1,132 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\title{Internet users per 100 (G20 countries)}
+\author{Mansi Jain \\
+School of Information Technology \\
+Illinois State University\\
+\texttt{mjain4@ilstu.edu}}
+
+\maketitle
+
+\begin{abstract}
+The number of Internet users has risen steadily overall the world.
+\end{abstract}
+
+\section{Introduction}
+The Internet is a \emph{global network} connecting millions of computers. More than 100 countries are linked into exchanges of data, news and opinions. According to Internet World Stats, as of December 31, 2011 there was an estimated 2,267,233,742 Internet users worldwide. The number of Internet users represents 32.7 percent of the world's population. \\
+This report compares the number of Internet users in Argentina, UK and USA.
+
+\subsection{Overview}
+The Internet, both in terms of infrastructure and content, has grown rapidly since its inception, spurring enormous innovation, diverse network expansion, and increased user engagement in a virtuous circle of growth. 
+The milestone of 3 billion users will be reached in early 2015, based on a recent International 
+Telecommunication Union (ITU) forecast.
+
+<<echo=FALSE>>=
+library(Quandl)
+mydata1 <- Quandl("WORLDBANK/ARG_IT_NET_USER_P2", trim_start="1990-12-31", trim_end="2013-12-31", authcode="mz6EXUC6aUzNTgo1txtm")
+
+mydata2 <- Quandl("WORLDBANK/GBR_IT_NET_USER_P2", trim_start="1990-12-31", trim_end="2013-12-31", authcode="mz6EXUC6aUzNTgo1txtm")
+
+mydata3 <- Quandl("WORLDBANK/USA_IT_NET_USER_P2", trim_start="1990-12-31", trim_end="2013-12-31", authcode="mz6EXUC6aUzNTgo1txtm")
+
+mydata <- merge(x=mydata1, y=mydata2, by = c("Date"))
+mydata.final <- merge(x=mydata, y=mydata3, by = c("Date"))
+
+library(plyr)
+mydata.new <- rename(mydata.final, c("Value.x"="ValueARG", "Value.y"="ValueGBR", "Value" = "ValueUSA"))
+write.csv(mydata.new,"Assignment2_data.csv")
+
+library(ggplot2)
+@
+
+\section{Internet usage statistics}
+The data for internet users per 100 in G20 countries is gathered from Quandl. The data for this report is collected for three G20 countries: Argentina, United Kingdom and United States of America.
+\subsection{Gathered Data:}
+
+\begin{table}
+The data in table 1 shown below is gathered for the three G20 country Argentina, United Kingdom and United States of America.The table displays the data based on date and the value fields represent the number of users for that particular date field.
+ValueARG, ValueGBR and ValueUSA represent number of users in Argentina, UK and USA respectively.The data gathered is from the date 1990-12-31 to 2013-12-31.
+<<label=Table1, echo=True>>==
+head(mydata.new,23)
+@
+\caption{Table showing Internet users in ARG, UK and USA from year 1990 to year 2013.}
+\end{table}
+
+
+\begin{table}
+\subsection{Exploring the data:}
+\emph{Class():}R objects have a class attribute, a character vector giving the names of the classes from which the object inherits. Using class() with our data will give the result as data.frame, as our data belong to data.frame class.
+<<label=Table, echo=True>>==
+class(mydata.new)
+@
+\caption{Class of Table 1}
+\end{table}
+
+
+\begin{table}
+\emph{Str():}Table 3 describes the str of gathered data. str() compactly displays the internal structure of mydata.new object, it is a diagnostic function and an alternative to summary.\\
+We can see data type of columns from table 3. Column Date is in Date format: YYYY-MM-DD and all the value columns have data type number(num). 
+<<label=Table3, echo=True>>==
+str(mydata.new)
+@
+\caption{Str of Table 1}
+\end{table}
+
+
+\begin{table}
+\emph{Summary():}Table 4 describes the summary of gathered data. Table 4 shown below displays the mean, median, min, max, 1st and 3rd quartile of each variable in the data.
+<<label=Table4, echo=True>>==
+summary(mydata.new)
+@
+\caption{Summary of Table 1}
+\end{table}
+
+\begin{table}
+\section{Result}
+\subsection{Plotting the data:}
+The gathered data is plotted in the graph, using method ggplot(). ggplot is an R package for data exploration and producing plots. Figure 1 shows the bar graph for the internet users in ARG, UK and USA from the year 1990 to 2013.\\
+As the table contains three value field for each of the three countries. Data needs to be reshaped so that each row is a unique id-variable combination. This can be done using melt() function in R.
+<<echo=True>>=
+library(reshape2)
+data.long <- melt(mydata.new, id.vars=c("Date"))
+@
+The data frame data.long is very long to be shown on a single page, so the data below in Table 5 is showing result for only top 34 rows. 
+<<label=Table5,echo=True>>=
+head(data.long,34)
+@
+\caption{Table displaying data with each having unique id-variable combination.}
+\end{table}
+
+\begin{figure}
+\subsection{Bar Graph:}
+Figure 1 displays Bar graph for data frame data.long using ggplot() function. This bar graph is comparing internet users in ARG, UK and USA.\\
+We can see from the graph that USA has the maximum number of Internet users in the year 1990, However in the year 1990 there were no internet users in Argentina. Internet users start growing from the year 1992 in Argentina. Till the year 2002 USA has the maximum number of internet users, But at the end of 2013 UK crosses the number of internet users in USA. In year 2006 and 2007 internet users in UK and USA are almost equal. But, at the end of year 2008, UK again took a leap crossing number of internet users in USA. 
+<<label=fig1,fig=TRUE,echo=True>>=
+ggplot(data=data.long, aes(x=Date, y=value, fill=variable))+
+  geom_bar(stat="identity", position=position_dodge(), colour="black")
+@
+\caption{Bar Graph comparing internet users}
+\end{figure}
+
+\begin{figure}
+\subsection{Line Graph:}
+Figure 2 shows the line graph for the data gathered. The 3 lines represents three countries ARG, UK and USA. We can see from the graph that UK has the maximum number of internet users. \\
+It is clear from the line graph that UK has the maximum number of internet users and Argentina has the minimum no of inernet users. In the end of year 2002 UK took a great leap. We can see in the line graph from the year 2002 to 2007 Internet users in UK and USA are almost equal. 
+
+<<label=fig2,fig=TRUE,echo=True>>=
+ggplot(data=data.long, aes(x=Date, y=value, group=variable, colour=variable))+ 
+  geom_line() + geom_point()
+@
+\caption{Line Graph comparing internet users}
+\end{figure}
+
+\section{Refrences}
+https://www.quandl.com/c/society/internet-users-by-country\\
+http://www.webopedia.com/TERM/I/Internet.html \\
+https://stat.ethz.ch/R-manual/R-devel/library/base/html/class.html\\
+http://www.statmethods.net/\\
+
+\end{document}
